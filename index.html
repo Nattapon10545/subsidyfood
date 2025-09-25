@@ -1,0 +1,1852 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบบันทึกรายการเบิกจ่ายค่าอาหารกลางวัน - โรงเรียนบ้านกิ่วพร้าว</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Sarabun', sans-serif;
+            background: linear-gradient(135deg, #fff9c4 0%, #ffeaa7 50%, #fab1a0 100%);
+            min-height: 100vh;
+        }
+        
+        .header-title {
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .school-logo {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+        }
+        
+        .nav-tabs .nav-link {
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+            border: none;
+            background: rgba(255,255,255,0.7);
+            color: #e17055;
+            margin-right: 10px;
+            border-radius: 15px 15px 0 0;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tabs .nav-link.active {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+            border: none;
+        }
+        
+        .nav-tabs .nav-link:hover {
+            background: rgba(253, 203, 110, 0.8);
+            color: white;
+        }
+        
+        .card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            border: none;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #e17055, #d63031);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .btn-outline-primary {
+            border-color: #e17055;
+            color: #e17055;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+        }
+        
+        .btn-outline-primary:hover {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            border-color: #e17055;
+        }
+        
+        .table {
+            font-family: 'Sarabun', sans-serif;
+        }
+        
+        .table thead th {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+            border: none;
+        }
+        
+        .table tbody tr:hover {
+            background-color: rgba(253, 203, 110, 0.1);
+        }
+        
+        .form-label {
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+            color: #2d3436;
+        }
+        
+        .form-control, .form-select {
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-family: 'Sarabun', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #fdcb6e;
+            box-shadow: 0 0 0 0.2rem rgba(253, 203, 110, 0.25);
+        }
+        
+        .pagination .page-link {
+            color: #e17055;
+            border: none;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+            margin: 0 2px;
+            border-radius: 8px;
+        }
+        
+        .pagination .page-link:hover {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            border: none;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(253, 203, 110, 0.3);
+            border-top: 4px solid #fdcb6e;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: white;
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        
+        .badge {
+            font-family: 'Kanit', sans-serif;
+            font-weight: 500;
+        }
+        
+        .modal-header {
+            background: linear-gradient(45deg, #fdcb6e, #e17055);
+            color: white;
+        }
+        
+        .modal-title {
+            font-family: 'Kanit', sans-serif;
+            font-weight: 600;
+        }
+        
+        .btn-close {
+            filter: invert(1);
+        }
+        
+        @media (max-width: 768px) {
+            .school-logo {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .header-title {
+                font-size: 1.5rem;
+            }
+            
+            .table-responsive {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="text-center">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">กำลังประมวลผล...</div>
+        </div>
+    </div>
+
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="text-center mb-4">
+            <img src="https://lh3.googleusercontent.com/d/1vQtWxoqhL4BWuOmDehWMGTqoRh63AThV" alt="โรงเรียนบ้านกิ่วพร้าว" class="school-logo mb-3">
+            <h1 class="header-title mb-2">ระบบบันทึกรายการเบิกจ่ายค่าอาหารกลางวัน</h1>
+            <h4 class="text-muted">โรงเรียนบ้านกิ่วพร้าว</h4>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs mb-4" id="mainTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="expense-tab" data-bs-toggle="tab" data-bs-target="#expense-pane" type="button" role="tab">
+                    <i class="bi bi-receipt me-2"></i>บันทึกรายการเบิกจ่าย
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="refund-tab" data-bs-toggle="tab" data-bs-target="#refund-pane" type="button" role="tab">
+                    <i class="bi bi-arrow-return-left me-2"></i>บันทึกรายการคืนเงิน
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="mainTabContent">
+            <!-- รายการเบิกจ่าย -->
+            <div class="tab-pane fade show active" id="expense-pane" role="tabpanel">
+                <div class="card rounded-xl shadow-lg p-6">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-0" style="font-family: 'Kanit', sans-serif; font-weight: 600;">
+                                    <i class="bi bi-list-ul me-2"></i>รายการเบิกจ่ายอาหารกลางวัน
+                                </h5>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="btn-group me-2" role="group">
+                                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="exportExpenseData('2568')">ปีงบประมาณ 2568</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="exportExpenseData('2569')">ปีงบประมาณ 2569</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="exportExpenseData('2570')">ปีงบประมาณ 2570</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#" onclick="exportExpenseData('all')">ทุกปีงบประมาณ</a></li>
+                                    </ul>
+                                </div>
+                                <button class="btn btn-primary" onclick="showAddExpenseModal()">
+                                    <i class="bi bi-plus-circle me-2"></i>เพิ่มรายการเบิกจ่าย
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Controls -->
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <label class="form-label">เดือน</label>
+                                <select class="form-select" id="expenseMonthFilter">
+                                    <option value="">ทุกเดือน</option>
+                                    <option value="1">มกราคม</option>
+                                    <option value="2">กุมภาพันธ์</option>
+                                    <option value="3">มีนาคม</option>
+                                    <option value="4">เมษายน</option>
+                                    <option value="5">พฤษภาคม</option>
+                                    <option value="6">มิถุนายน</option>
+                                    <option value="7">กรกฎาคม</option>
+                                    <option value="8">สิงหาคม</option>
+                                    <option value="9">กันยายน</option>
+                                    <option value="10">ตุลาคม</option>
+                                    <option value="11">พฤศจิกายน</option>
+                                    <option value="12">ธันวาคม</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">ปี</label>
+                                <select class="form-select" id="expenseYearFilter">
+                                    <option value="">ทุกปี</option>
+                                    <option value="2568">2568</option>
+                                    <option value="2569">2569</option>
+                                    <option value="2570">2570</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-outline-primary" onclick="filterExpenseData()">
+                                    <i class="bi bi-funnel me-2"></i>กรองข้อมูล
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>เลขที่เอกสาร</th>
+                                        <th>วันที่</th>
+                                        <th>โครงการ</th>
+                                        <th>ร้านค้า/ผู้ขาย</th>
+                                        <th>จำนวนเงิน</th>
+                                        <th>คงเหลือจ่ายจริง</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenseTableBody">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav aria-label="Expense pagination">
+                            <ul class="pagination justify-content-center" id="expensePagination">
+                                <!-- Pagination will be generated here -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- รายการคืนเงิน -->
+            <div class="tab-pane fade" id="refund-pane" role="tabpanel">
+                <div class="card rounded-xl shadow-lg p-6">
+                    <div class="card-header bg-transparent border-0 pb-0">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h5 class="card-title mb-0" style="font-family: 'Kanit', sans-serif; font-weight: 600;">
+                                    <i class="bi bi-arrow-return-left me-2"></i>รายการเบิกจ่ายคืนเงิน
+                                </h5>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <div class="btn-group me-2" role="group">
+                                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown">
+                                        <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="exportRefundData('2568')">ปีงบประมาณ 2568</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="exportRefundData('2569')">ปีงบประมาณ 2569</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="exportRefundData('2570')">ปีงบประมาณ 2570</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#" onclick="exportRefundData('all')">ทุกปีงบประมาณ</a></li>
+                                    </ul>
+                                </div>
+                                <button class="btn btn-primary" onclick="showAddRefundModal()">
+                                    <i class="bi bi-plus-circle me-2"></i>เพิ่มรายการคืนเงิน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filter Controls -->
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-3">
+                                <label class="form-label">เดือน</label>
+                                <select class="form-select" id="refundMonthFilter">
+                                    <option value="">ทุกเดือน</option>
+                                    <option value="1">มกราคม</option>
+                                    <option value="2">กุมภาพันธ์</option>
+                                    <option value="3">มีนาคม</option>
+                                    <option value="4">เมษายน</option>
+                                    <option value="5">พฤษภาคม</option>
+                                    <option value="6">มิถุนายน</option>
+                                    <option value="7">กรกฎาคม</option>
+                                    <option value="8">สิงหาคม</option>
+                                    <option value="9">กันยายน</option>
+                                    <option value="10">ตุลาคม</option>
+                                    <option value="11">พฤศจิกายน</option>
+                                    <option value="12">ธันวาคม</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">ปี</label>
+                                <select class="form-select" id="refundYearFilter">
+                                    <option value="">ทุกปี</option>
+                                    <option value="2568">2568</option>
+                                    <option value="2569">2569</option>
+                                    <option value="2570">2570</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-outline-primary" onclick="filterRefundData()">
+                                    <i class="bi bi-funnel me-2"></i>กรองข้อมูล
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>เลขที่เอกสาร</th>
+                                        <th>วันที่</th>
+                                        <th>รายการ</th>
+                                        <th>ไตรมาส</th>
+                                        <th>คืนใคร</th>
+                                        <th>จำนวนเงิน</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="refundTableBody">
+                                    <!-- Data will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <nav aria-label="Refund pagination">
+                            <ul class="pagination justify-content-center" id="refundPagination">
+                                <!-- Pagination will be generated here -->
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div class="modal fade" id="addExpenseModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">เพิ่มรายการเบิกจ่าย</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="expenseForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ประเภทเอกสาร</label>
+                                <input type="text" class="form-control" id="expenseDocType" value="บค." required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">เลขที่เอกสาร</label>
+                                <input type="text" class="form-control" id="expenseDocNumber" placeholder="01-300" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ปีงบประมาณ</label>
+                                <select class="form-select" id="expenseBudgetYear" required>
+                                    <option value="">เลือกปีงบประมาณ</option>
+                                    <option value="2568">2568</option>
+                                    <option value="2569">2569</option>
+                                    <option value="2570">2570</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">วันที่</label>
+                                <input type="date" class="form-control" id="expenseDate" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">โครงการ</label>
+                                <input type="text" class="form-control" id="expenseProject" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">รายการ</label>
+                                <input type="text" class="form-control" id="expenseItem" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">ร้านค้าหรือผู้ขาย</label>
+                                <input type="text" class="form-control" id="expenseVendor" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ประเภทผู้ขาย</label>
+                                <select class="form-select" id="expenseVendorType" required onchange="calculateExpenseTax()">
+                                    <option value="">เลือกประเภทผู้ขาย</option>
+                                    <option value="นิติบุคคล">นิติบุคคล</option>
+                                    <option value="บุคคลธรรมดา">บุคคลธรรมดา</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">เลขที่ใบสั่งซื้อหรือสั่งจ้าง</label>
+                                <input type="text" class="form-control" id="expensePurchaseOrder">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ใบสั่งลงวันที่</label>
+                                <input type="date" class="form-control" id="expensePurchaseDate">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">จำนวนเงิน</label>
+                                <input type="number" class="form-control" id="expenseAmount" step="0.01" required onchange="calculateExpenseTax()">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ภาษีมูลค่าเพิ่ม (VAT 7%)</label>
+                                <input type="number" class="form-control" id="expenseVat" step="0.01" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">มูลค่าสินค้า</label>
+                                <input type="number" class="form-control" id="expenseProductValue" step="0.01" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ภาษี ณ ที่จ่าย</label>
+                                <input type="number" class="form-control" id="expenseWithholdingTax" step="0.01" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">คงเหลือจ่ายจริง</label>
+                                <input type="number" class="form-control" id="expenseNetAmount" step="0.01" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">คงเหลือจ่ายจริงเป็นตัวหนังสือ</label>
+                                <input type="text" class="form-control" id="expenseNetAmountText" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-primary" onclick="saveExpense()">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Refund Modal -->
+    <div class="modal fade" id="addRefundModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">เพิ่มรายการคืนเงิน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="refundForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ประเภทเอกสาร</label>
+                                <input type="text" class="form-control" id="refundDocType" value="บจ." required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">เลขที่เอกสาร</label>
+                                <input type="text" class="form-control" id="refundDocNumber" placeholder="01-300" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ปีงบประมาณ</label>
+                                <select class="form-select" id="refundBudgetYear" required>
+                                    <option value="">เลือกปีงบประมาณ</option>
+                                    <option value="2568">2568</option>
+                                    <option value="2569">2569</option>
+                                    <option value="2570">2570</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">วันที่</label>
+                                <input type="date" class="form-control" id="refundDate" required>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">รายการ</label>
+                                <input type="text" class="form-control" id="refundItem" value="ขอเบิกเงินอุดหนุนโครงการอาหารกลางวันเหลือจ่าย" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">ไตรมาส</label>
+                                <select class="form-select" id="refundQuarter" required>
+                                    <option value="">เลือกไตรมาส</option>
+                                    <option value="ไตรมาสที่ 1">ไตรมาสที่ 1</option>
+                                    <option value="ไตรมาสที่ 2">ไตรมาสที่ 2</option>
+                                    <option value="ไตรมาสที่ 3">ไตรมาสที่ 3</option>
+                                    <option value="ไตรมาสที่ 4">ไตรมาสที่ 4</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">คืนใคร</label>
+                                <input type="text" class="form-control" id="refundTo" value="เทศบาลตำบลจันจว้า" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">จำนวนเงิน</label>
+                                <input type="number" class="form-control" id="refundAmount" step="0.01" required onchange="convertRefundAmountToText()">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">จำนวนเงินเป็นตัวหนังสือ</label>
+                                <input type="text" class="form-control" id="refundAmountText" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" class="btn btn-primary" onclick="saveRefund()">บันทึก</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Detail Modal -->
+    <div class="modal fade" id="viewDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">รายละเอียด</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="viewDetailContent">
+                    <!-- Detail content will be loaded here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        // Global variables
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyy5FgIshTp7dIkCGp3647iHQ7VVxRqh1djO9WOlx_LAGfE_d7-Uh580XM0N6fU1veVzw/exec';
+        const SHEET_ID = '1fuPkQ5UcCy1Dfeah6TgC7GNZlR8RxIECSrtatJb8Btg';
+        
+        let expenseData = [];
+        let refundData = [];
+        let currentExpensePage = 1;
+        let currentRefundPage = 1;
+        const itemsPerPage = 20;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            loadExpenseData();
+            loadRefundData();
+        });
+
+        // Show loading overlay
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        // Hide loading overlay
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        // Load expense data
+        async function loadExpenseData() {
+            try {
+                showLoading();
+                const response = await fetch(`${SCRIPT_URL}?action=getExpenses&sheetId=${SHEET_ID}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    expenseData = data.data || [];
+                    displayExpenseData();
+                } else {
+                    throw new Error(data.message || 'Failed to load expense data');
+                }
+            } catch (error) {
+                console.error('Error loading expense data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดข้อมูลรายการเบิกจ่ายได้',
+                    confirmButtonColor: '#e17055'
+                });
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Load refund data
+        async function loadRefundData() {
+            try {
+                showLoading();
+                const response = await fetch(`${SCRIPT_URL}?action=getRefunds&sheetId=${SHEET_ID}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    refundData = data.data || [];
+                    displayRefundData();
+                } else {
+                    throw new Error(data.message || 'Failed to load refund data');
+                }
+            } catch (error) {
+                console.error('Error loading refund data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถโหลดข้อมูลรายการคืนเงินได้',
+                    confirmButtonColor: '#e17055'
+                });
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display expense data in table
+        function displayExpenseData(filteredData = null) {
+            const data = filteredData || expenseData;
+            const tbody = document.getElementById('expenseTableBody');
+            const startIndex = (currentExpensePage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = data.slice(startIndex, endIndex);
+
+            tbody.innerHTML = '';
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">ไม่มีข้อมูล</td></tr>';
+                return;
+            }
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.docType || ''}-${item.docNumber || ''}</td>
+                    <td>${formatDate(item.date)}</td>
+                    <td>${item.project || ''}</td>
+                    <td>${item.vendor || ''}</td>
+                    <td class="text-end">${formatCurrency(item.amount)}</td>
+                    <td class="text-end">${formatCurrency(item.netAmount)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewExpenseDetail(${startIndex + index})" title="ดูรายละเอียด">
+                            <img src="https://lh3.googleusercontent.com/d/1vThmT8ao6LRoTpfJ0cCyySaAPZPnv48x" alt="ดู" style="width: 16px; height: 16px;">
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editExpense(${startIndex + index})" title="แก้ไข">
+                            <img src="https://lh3.googleusercontent.com/d/1J08fhv8_Lqe1O1YY4nQTSl-0WKNo3FnU" alt="แก้ไข" style="width: 16px; height: 16px;">
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteExpense(${startIndex + index})" title="ลบ">
+                            <img src="https://lh3.googleusercontent.com/d/1CE-tDsLaAhEd3TGz877i7N3AIiYRjDlq" alt="ลบ" style="width: 16px; height: 16px;">
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            generateExpensePagination(data.length);
+        }
+
+        // Display refund data in table
+        function displayRefundData(filteredData = null) {
+            const data = filteredData || refundData;
+            const tbody = document.getElementById('refundTableBody');
+            const startIndex = (currentRefundPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageData = data.slice(startIndex, endIndex);
+
+            tbody.innerHTML = '';
+
+            if (pageData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">ไม่มีข้อมูล</td></tr>';
+                return;
+            }
+
+            pageData.forEach((item, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${item.docType || ''}-${item.docNumber || ''}</td>
+                    <td>${formatDate(item.date)}</td>
+                    <td>${item.item || ''}</td>
+                    <td>${item.quarter || ''}</td>
+                    <td>${item.refundTo || ''}</td>
+                    <td class="text-end">${formatCurrency(item.amount)}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewRefundDetail(${startIndex + index})" title="ดูรายละเอียด">
+                            <img src="https://lh3.googleusercontent.com/d/1vThmT8ao6LRoTpfJ0cCyySaAPZPnv48x" alt="ดู" style="width: 16px; height: 16px;">
+                        </button>
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editRefund(${startIndex + index})" title="แก้ไข">
+                            <img src="https://lh3.googleusercontent.com/d/1J08fhv8_Lqe1O1YY4nQTSl-0WKNo3FnU" alt="แก้ไข" style="width: 16px; height: 16px;">
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRefund(${startIndex + index})" title="ลบ">
+                            <img src="https://lh3.googleusercontent.com/d/1CE-tDsLaAhEd3TGz877i7N3AIiYRjDlq" alt="ลบ" style="width: 16px; height: 16px;">
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            generateRefundPagination(data.length);
+        }
+
+        // Generate expense pagination
+        function generateExpensePagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const pagination = document.getElementById('expensePagination');
+            pagination.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentExpensePage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="changeExpensePage(${currentExpensePage - 1})">ก่อนหน้า</a>`;
+            pagination.appendChild(prevLi);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentExpensePage - 2 && i <= currentExpensePage + 2)) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === currentExpensePage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#" onclick="changeExpensePage(${i})">${i}</a>`;
+                    pagination.appendChild(li);
+                } else if (i === currentExpensePage - 3 || i === currentExpensePage + 3) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item disabled';
+                    li.innerHTML = '<span class="page-link">...</span>';
+                    pagination.appendChild(li);
+                }
+            }
+
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentExpensePage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="changeExpensePage(${currentExpensePage + 1})">ถัดไป</a>`;
+            pagination.appendChild(nextLi);
+        }
+
+        // Generate refund pagination
+        function generateRefundPagination(totalItems) {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const pagination = document.getElementById('refundPagination');
+            pagination.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // Previous button
+            const prevLi = document.createElement('li');
+            prevLi.className = `page-item ${currentRefundPage === 1 ? 'disabled' : ''}`;
+            prevLi.innerHTML = `<a class="page-link" href="#" onclick="changeRefundPage(${currentRefundPage - 1})">ก่อนหน้า</a>`;
+            pagination.appendChild(prevLi);
+
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentRefundPage - 2 && i <= currentRefundPage + 2)) {
+                    const li = document.createElement('li');
+                    li.className = `page-item ${i === currentRefundPage ? 'active' : ''}`;
+                    li.innerHTML = `<a class="page-link" href="#" onclick="changeRefundPage(${i})">${i}</a>`;
+                    pagination.appendChild(li);
+                } else if (i === currentRefundPage - 3 || i === currentRefundPage + 3) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item disabled';
+                    li.innerHTML = '<span class="page-link">...</span>';
+                    pagination.appendChild(li);
+                }
+            }
+
+            // Next button
+            const nextLi = document.createElement('li');
+            nextLi.className = `page-item ${currentRefundPage === totalPages ? 'disabled' : ''}`;
+            nextLi.innerHTML = `<a class="page-link" href="#" onclick="changeRefundPage(${currentRefundPage + 1})">ถัดไป</a>`;
+            pagination.appendChild(nextLi);
+        }
+
+        // Change expense page
+        function changeExpensePage(page) {
+            const totalPages = Math.ceil(expenseData.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentExpensePage = page;
+                displayExpenseData();
+            }
+        }
+
+        // Change refund page
+        function changeRefundPage(page) {
+            const totalPages = Math.ceil(refundData.length / itemsPerPage);
+            if (page >= 1 && page <= totalPages) {
+                currentRefundPage = page;
+                displayRefundData();
+            }
+        }
+
+        // Show add expense modal
+        function showAddExpenseModal() {
+            document.getElementById('expenseForm').reset();
+            document.getElementById('expenseDocType').value = 'บค.';
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
+            
+            // Reset modal title and save button
+            document.querySelector('#addExpenseModal .modal-title').textContent = 'เพิ่มรายการเบิกจ่าย';
+            const saveBtn = document.querySelector('#addExpenseModal .btn-primary');
+            saveBtn.textContent = 'บันทึก';
+            saveBtn.onclick = saveExpense;
+            
+            new bootstrap.Modal(document.getElementById('addExpenseModal')).show();
+        }
+
+        // Show add refund modal
+        function showAddRefundModal() {
+            document.getElementById('refundForm').reset();
+            document.getElementById('refundDocType').value = 'บจ.';
+            document.getElementById('refundItem').value = 'ขอเบิกเงินอุดหนุนโครงการอาหารกลางวันเหลือจ่าย';
+            document.getElementById('refundTo').value = 'เทศบาลตำบลจันจว้า';
+            document.getElementById('refundDate').value = new Date().toISOString().split('T')[0];
+            
+            // Reset modal title and save button
+            document.querySelector('#addRefundModal .modal-title').textContent = 'เพิ่มรายการคืนเงิน';
+            const saveBtn = document.querySelector('#addRefundModal .btn-primary');
+            saveBtn.textContent = 'บันทึก';
+            saveBtn.onclick = saveRefund;
+            
+            new bootstrap.Modal(document.getElementById('addRefundModal')).show();
+        }
+
+        // Calculate expense tax
+        function calculateExpenseTax() {
+            const amount = parseFloat(document.getElementById('expenseAmount').value) || 0;
+            const vendorType = document.getElementById('expenseVendorType').value;
+
+            let vat = 0;
+            let productValue = amount;
+            let withholdingTax = 0;
+
+            if (vendorType === 'นิติบุคคล') {
+                // VAT 7% calculation
+                vat = Math.round((amount * 7 / 107) * 100) / 100;
+                productValue = amount - vat;
+
+                // Withholding tax 1% for corporate (from 500 baht)
+                if (amount >= 500) {
+                    const taxBase = amount * 100 / 107;
+                    withholdingTax = Math.round((taxBase * 1 / 100) * 100) / 100;
+                }
+            } else if (vendorType === 'บุคคลธรรมดา') {
+                // Withholding tax 1% for individual (from 10,000 baht)
+                if (amount >= 10000) {
+                    withholdingTax = Math.round((amount * 1 / 100) * 100) / 100;
+                }
+            }
+
+            const netAmount = amount - withholdingTax;
+
+            document.getElementById('expenseVat').value = vat.toFixed(2);
+            document.getElementById('expenseProductValue').value = productValue.toFixed(2);
+            document.getElementById('expenseWithholdingTax').value = withholdingTax.toFixed(2);
+            document.getElementById('expenseNetAmount').value = netAmount.toFixed(2);
+            document.getElementById('expenseNetAmountText').value = numberToThaiText(netAmount);
+        }
+
+        // Convert refund amount to text
+        function convertRefundAmountToText() {
+            const amount = parseFloat(document.getElementById('refundAmount').value) || 0;
+            document.getElementById('refundAmountText').value = numberToThaiText(amount);
+        }
+
+        // Update expense
+        async function updateExpense(index) {
+            const form = document.getElementById('expenseForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const item = expenseData[index];
+            const formData = {
+                action: 'updateExpense',
+                sheetId: SHEET_ID,
+                id: item.id || index,
+                docType: document.getElementById('expenseDocType').value,
+                docNumber: document.getElementById('expenseDocNumber').value,
+                budgetYear: document.getElementById('expenseBudgetYear').value,
+                date: document.getElementById('expenseDate').value,
+                project: document.getElementById('expenseProject').value,
+                item: document.getElementById('expenseItem').value,
+                vendor: document.getElementById('expenseVendor').value,
+                vendorType: document.getElementById('expenseVendorType').value,
+                purchaseOrder: document.getElementById('expensePurchaseOrder').value,
+                purchaseDate: document.getElementById('expensePurchaseDate').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                vat: parseFloat(document.getElementById('expenseVat').value),
+                productValue: parseFloat(document.getElementById('expenseProductValue').value),
+                withholdingTax: parseFloat(document.getElementById('expenseWithholdingTax').value),
+                netAmount: parseFloat(document.getElementById('expenseNetAmount').value),
+                netAmountText: document.getElementById('expenseNetAmountText').value
+            };
+
+            try {
+                showLoading();
+                
+                const params = new URLSearchParams(formData);
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: 'อัปเดตรายการเบิกจ่ายเรียบร้อยแล้ว',
+                        confirmButtonColor: '#e17055'
+                    });
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+                    loadExpenseData();
+                } else {
+                    throw new Error(result.message || 'Failed to update expense');
+                }
+            } catch (error) {
+                console.error('Error updating expense:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถอัปเดตรายการเบิกจ่ายได้',
+                    confirmButtonColor: '#e17055'
+                });
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Save expense
+        async function saveExpense() {
+            const form = document.getElementById('expenseForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = {
+                action: 'addExpense',
+                sheetId: SHEET_ID,
+                docType: document.getElementById('expenseDocType').value,
+                docNumber: document.getElementById('expenseDocNumber').value,
+                budgetYear: document.getElementById('expenseBudgetYear').value,
+                date: document.getElementById('expenseDate').value,
+                project: document.getElementById('expenseProject').value,
+                item: document.getElementById('expenseItem').value,
+                vendor: document.getElementById('expenseVendor').value,
+                vendorType: document.getElementById('expenseVendorType').value,
+                purchaseOrder: document.getElementById('expensePurchaseOrder').value,
+                purchaseDate: document.getElementById('expensePurchaseDate').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                vat: parseFloat(document.getElementById('expenseVat').value),
+                productValue: parseFloat(document.getElementById('expenseProductValue').value),
+                withholdingTax: parseFloat(document.getElementById('expenseWithholdingTax').value),
+                netAmount: parseFloat(document.getElementById('expenseNetAmount').value),
+                netAmountText: document.getElementById('expenseNetAmountText').value
+            };
+
+            try {
+                showLoading();
+                
+                const params = new URLSearchParams(formData);
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: 'บันทึกรายการเบิกจ่ายเรียบร้อยแล้ว',
+                        confirmButtonColor: '#e17055'
+                    });
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+                    loadExpenseData();
+                } else {
+                    throw new Error(result.message || 'Failed to save expense');
+                }
+            } catch (error) {
+                console.error('Error saving expense:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถบันทึกรายการเบิกจ่ายได้',
+                    confirmButtonColor: '#e17055'
+                });
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Update refund
+        async function updateRefund(index) {
+            const form = document.getElementById('refundForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const item = refundData[index];
+            const formData = {
+                action: 'updateRefund',
+                sheetId: SHEET_ID,
+                id: item.id || index,
+                docType: document.getElementById('refundDocType').value,
+                docNumber: document.getElementById('refundDocNumber').value,
+                budgetYear: document.getElementById('refundBudgetYear').value,
+                date: document.getElementById('refundDate').value,
+                item: document.getElementById('refundItem').value,
+                quarter: document.getElementById('refundQuarter').value,
+                refundTo: document.getElementById('refundTo').value,
+                amount: parseFloat(document.getElementById('refundAmount').value),
+                amountText: document.getElementById('refundAmountText').value
+            };
+
+            try {
+                showLoading();
+                
+                const params = new URLSearchParams(formData);
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: 'อัปเดตรายการคืนเงินเรียบร้อยแล้ว',
+                        confirmButtonColor: '#e17055'
+                    });
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('addRefundModal')).hide();
+                    loadRefundData();
+                } else {
+                    throw new Error(result.message || 'Failed to update refund');
+                }
+            } catch (error) {
+                console.error('Error updating refund:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถอัปเดตรายการคืนเงินได้',
+                    confirmButtonColor: '#e17055'
+                });
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Save refund
+        async function saveRefund() {
+            const form = document.getElementById('refundForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = {
+                action: 'addRefund',
+                sheetId: SHEET_ID,
+                docType: document.getElementById('refundDocType').value,
+                docNumber: document.getElementById('refundDocNumber').value,
+                budgetYear: document.getElementById('refundBudgetYear').value,
+                date: document.getElementById('refundDate').value,
+                item: document.getElementById('refundItem').value,
+                quarter: document.getElementById('refundQuarter').value,
+                refundTo: document.getElementById('refundTo').value,
+                amount: parseFloat(document.getElementById('refundAmount').value),
+                amountText: document.getElementById('refundAmountText').value
+            };
+
+            try {
+                showLoading();
+                
+                const params = new URLSearchParams(formData);
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: params
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'สำเร็จ',
+                        text: 'บันทึกรายการคืนเงินเรียบร้อยแล้ว',
+                        confirmButtonColor: '#e17055'
+                    });
+                    
+                    bootstrap.Modal.getInstance(document.getElementById('addRefundModal')).hide();
+                    loadRefundData();
+                } else {
+                    throw new Error(result.message || 'Failed to save refund');
+                }
+            } catch (error) {
+                console.error('Error saving refund:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถบันทึกรายการคืนเงินได้',
+                    confirmButtonColor: '#e17055'
+                });
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Edit expense
+        function editExpense(index) {
+            const item = expenseData[index];
+            
+            // Fill form with existing data
+            document.getElementById('expenseDocType').value = item.docType || '';
+            document.getElementById('expenseDocNumber').value = item.docNumber || '';
+            document.getElementById('expenseBudgetYear').value = item.budgetYear || '';
+            document.getElementById('expenseDate').value = item.date || '';
+            document.getElementById('expenseProject').value = item.project || '';
+            document.getElementById('expenseItem').value = item.item || '';
+            document.getElementById('expenseVendor').value = item.vendor || '';
+            document.getElementById('expenseVendorType').value = item.vendorType || '';
+            document.getElementById('expensePurchaseOrder').value = item.purchaseOrder || '';
+            document.getElementById('expensePurchaseDate').value = item.purchaseDate || '';
+            document.getElementById('expenseAmount').value = item.amount || '';
+            document.getElementById('expenseVat').value = item.vat || '';
+            document.getElementById('expenseProductValue').value = item.productValue || '';
+            document.getElementById('expenseWithholdingTax').value = item.withholdingTax || '';
+            document.getElementById('expenseNetAmount').value = item.netAmount || '';
+            document.getElementById('expenseNetAmountText').value = item.netAmountText || '';
+            
+            // Change modal title and save button
+            document.querySelector('#addExpenseModal .modal-title').textContent = 'แก้ไขรายการเบิกจ่าย';
+            const saveBtn = document.querySelector('#addExpenseModal .btn-primary');
+            saveBtn.textContent = 'อัปเดต';
+            saveBtn.onclick = () => updateExpense(index);
+            
+            new bootstrap.Modal(document.getElementById('addExpenseModal')).show();
+        }
+
+        // View expense detail
+        function viewExpenseDetail(index) {
+            const item = expenseData[index];
+            const content = `
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>ประเภทเอกสาร:</strong> ${item.docType || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>เลขที่เอกสาร:</strong> ${item.docNumber || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>ปีงบประมาณ:</strong> ${item.budgetYear || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>วันที่:</strong> ${formatDate(item.date)}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <strong>โครงการ:</strong> ${item.project || '-'}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <strong>รายการ:</strong> ${item.item || '-'}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <strong>ร้านค้าหรือผู้ขาย:</strong> ${item.vendor || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>ประเภทผู้ขาย:</strong> ${item.vendorType || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>เลขที่ใบสั่งซื้อ:</strong> ${item.purchaseOrder || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>ใบสั่งลงวันที่:</strong> ${formatDate(item.purchaseDate)}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>จำนวนเงิน:</strong> ${formatCurrency(item.amount)}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>ภาษีมูลค่าเพิ่ม:</strong> ${formatCurrency(item.vat)}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>มูลค่าสินค้า:</strong> ${formatCurrency(item.productValue)}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>ภาษี ณ ที่จ่าย:</strong> ${formatCurrency(item.withholdingTax)}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>คงเหลือจ่ายจริง:</strong> ${formatCurrency(item.netAmount)}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <strong>คงเหลือจ่ายจริงเป็นตัวหนังสือ:</strong> ${item.netAmountText || '-'}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('viewDetailContent').innerHTML = content;
+            new bootstrap.Modal(document.getElementById('viewDetailModal')).show();
+        }
+
+        // Edit refund
+        function editRefund(index) {
+            const item = refundData[index];
+            
+            // Fill form with existing data
+            document.getElementById('refundDocType').value = item.docType || '';
+            document.getElementById('refundDocNumber').value = item.docNumber || '';
+            document.getElementById('refundBudgetYear').value = item.budgetYear || '';
+            document.getElementById('refundDate').value = item.date || '';
+            document.getElementById('refundItem').value = item.item || '';
+            document.getElementById('refundQuarter').value = item.quarter || '';
+            document.getElementById('refundTo').value = item.refundTo || '';
+            document.getElementById('refundAmount').value = item.amount || '';
+            document.getElementById('refundAmountText').value = item.amountText || '';
+            
+            // Change modal title and save button
+            document.querySelector('#addRefundModal .modal-title').textContent = 'แก้ไขรายการคืนเงิน';
+            const saveBtn = document.querySelector('#addRefundModal .btn-primary');
+            saveBtn.textContent = 'อัปเดต';
+            saveBtn.onclick = () => updateRefund(index);
+            
+            new bootstrap.Modal(document.getElementById('addRefundModal')).show();
+        }
+
+        // View refund detail
+        function viewRefundDetail(index) {
+            const item = refundData[index];
+            const content = `
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong>ประเภทเอกสาร:</strong> ${item.docType || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>เลขที่เอกสาร:</strong> ${item.docNumber || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>ปีงบประมาณ:</strong> ${item.budgetYear || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>วันที่:</strong> ${formatDate(item.date)}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <strong>รายการ:</strong> ${item.item || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>ไตรมาส:</strong> ${item.quarter || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>คืนใคร:</strong> ${item.refundTo || '-'}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong>จำนวนเงิน:</strong> ${formatCurrency(item.amount)}
+                    </div>
+                    <div class="col-md-12 mb-3">
+                        <strong>จำนวนเงินเป็นตัวหนังสือ:</strong> ${item.amountText || '-'}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('viewDetailContent').innerHTML = content;
+            new bootstrap.Modal(document.getElementById('viewDetailModal')).show();
+        }
+
+        // Delete expense
+        async function deleteExpense(index) {
+            const item = expenseData[index];
+            
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ',
+                text: `คุณต้องการลบรายการ ${item.docType}-${item.docNumber} หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    showLoading();
+                    
+                    const params = new URLSearchParams({
+                        action: 'deleteExpense',
+                        sheetId: SHEET_ID,
+                        id: item.id || index
+                    });
+
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: 'ลบรายการเรียบร้อยแล้ว',
+                            confirmButtonColor: '#e17055'
+                        });
+                        loadExpenseData();
+                    } else {
+                        throw new Error(data.message || 'Failed to delete expense');
+                    }
+                } catch (error) {
+                    console.error('Error deleting expense:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบรายการได้',
+                        confirmButtonColor: '#e17055'
+                    });
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+
+        // Delete refund
+        async function deleteRefund(index) {
+            const item = refundData[index];
+            
+            const result = await Swal.fire({
+                title: 'ยืนยันการลบ',
+                text: `คุณต้องการลบรายการ ${item.docType}-${item.docNumber} หรือไม่?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'ลบ',
+                cancelButtonText: 'ยกเลิก'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    showLoading();
+                    
+                    const params = new URLSearchParams({
+                        action: 'deleteRefund',
+                        sheetId: SHEET_ID,
+                        id: item.id || index
+                    });
+
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: params
+                    });
+
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: 'ลบรายการเรียบร้อยแล้ว',
+                            confirmButtonColor: '#e17055'
+                        });
+                        loadRefundData();
+                    } else {
+                        throw new Error(data.message || 'Failed to delete refund');
+                    }
+                } catch (error) {
+                    console.error('Error deleting refund:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไม่สามารถลบรายการได้',
+                        confirmButtonColor: '#e17055'
+                    });
+                } finally {
+                    hideLoading();
+                }
+            }
+        }
+
+        // Filter expense data
+        function filterExpenseData() {
+            const month = document.getElementById('expenseMonthFilter').value;
+            const year = document.getElementById('expenseYearFilter').value;
+
+            let filteredData = expenseData;
+
+            if (month || year) {
+                filteredData = expenseData.filter(item => {
+                    const itemDate = new Date(item.date);
+                    const itemMonth = itemDate.getMonth() + 1;
+                    const itemYear = itemDate.getFullYear();
+
+                    let matchMonth = true;
+                    let matchYear = true;
+
+                    if (month) {
+                        matchMonth = itemMonth == month;
+                    }
+
+                    if (year) {
+                        matchYear = itemYear == year;
+                    }
+
+                    return matchMonth && matchYear;
+                });
+            }
+
+            currentExpensePage = 1;
+            displayExpenseData(filteredData);
+        }
+
+        // Filter refund data
+        function filterRefundData() {
+            const month = document.getElementById('refundMonthFilter').value;
+            const year = document.getElementById('refundYearFilter').value;
+
+            let filteredData = refundData;
+
+            if (month || year) {
+                filteredData = refundData.filter(item => {
+                    const itemDate = new Date(item.date);
+                    const itemMonth = itemDate.getMonth() + 1;
+                    const itemYear = itemDate.getFullYear();
+
+                    let matchMonth = true;
+                    let matchYear = true;
+
+                    if (month) {
+                        matchMonth = itemMonth == month;
+                    }
+
+                    if (year) {
+                        matchYear = itemYear == year;
+                    }
+
+                    return matchMonth && matchYear;
+                });
+            }
+
+            currentRefundPage = 1;
+            displayRefundData(filteredData);
+        }
+
+        // Utility functions
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('th-TH');
+        }
+
+        function formatCurrency(amount) {
+            if (!amount && amount !== 0) return '-';
+            return new Intl.NumberFormat('th-TH', {
+                style: 'currency',
+                currency: 'THB'
+            }).format(amount);
+        }
+
+        // Convert number to Thai text
+        function numberToThaiText(num) {
+            if (!num && num !== 0) return '';
+            
+            const ones = ['', 'หนึ่ง', 'สอง', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
+            const tens = ['', '', 'ยี่', 'สาม', 'สี่', 'ห้า', 'หก', 'เจ็ด', 'แปด', 'เก้า'];
+            const units = ['', 'สิบ', 'ร้อย', 'พัน', 'หมื่น', 'แสน', 'ล้าน'];
+
+            if (num === 0) return 'ศูนย์บาท';
+
+            let result = '';
+            const numStr = Math.floor(num).toString();
+            const len = numStr.length;
+
+            for (let i = 0; i < len; i++) {
+                const digit = parseInt(numStr[i]);
+                const pos = len - i - 1;
+
+                if (digit !== 0) {
+                    if (pos === 1 && digit === 1 && len > 1) {
+                        result += 'สิบ';
+                    } else if (pos === 1 && digit === 2) {
+                        result += 'ยี่สิบ';
+                    } else {
+                        if (pos === 0 && digit === 1 && len > 1 && numStr[len-2] !== '0') {
+                            result += 'เอ็ด';
+                        } else {
+                            result += ones[digit];
+                        }
+                        if (pos > 0) {
+                            result += units[pos];
+                        }
+                    }
+                }
+            }
+
+            result += 'บาท';
+
+            // Handle decimal places
+            const decimal = Math.round((num - Math.floor(num)) * 100);
+            if (decimal > 0) {
+                result += numberToThaiText(decimal).replace('บาท', '') + 'สตางค์';
+            } else {
+                result += 'ถ้วน';
+            }
+
+            return result;
+        }
+
+        // Export expense data to Excel
+        function exportExpenseData(budgetYear) {
+            try {
+                let filteredData = expenseData;
+                let fileName = 'รายการเบิกจ่ายอาหารกลางวัน';
+
+                if (budgetYear !== 'all') {
+                    filteredData = expenseData.filter(item => {
+                        // Check both budgetYear field and year from date
+                        const itemBudgetYear = item.budgetYear || item.year;
+                        const itemDateYear = item.date ? new Date(item.date).getFullYear() : null;
+                        
+                        return itemBudgetYear === budgetYear || 
+                               itemBudgetYear === parseInt(budgetYear) ||
+                               itemDateYear === parseInt(budgetYear);
+                    });
+                    fileName += `_ปีงบประมาณ${budgetYear}`;
+                } else {
+                    fileName += '_ทุกปีงบประมาณ';
+                }
+
+                console.log('Budget Year:', budgetYear);
+                console.log('Total expense data:', expenseData.length);
+                console.log('Filtered data:', filteredData.length);
+                console.log('Sample data:', expenseData.slice(0, 3));
+
+                if (filteredData.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่มีข้อมูล',
+                        text: 'ไม่มีข้อมูลสำหรับปีงบประมาณที่เลือก',
+                        confirmButtonColor: '#e17055'
+                    });
+                    return;
+                }
+
+                // Prepare data for Excel
+                const excelData = filteredData.map((item, index) => ({
+                    'ลำดับ': index + 1,
+                    'ประเภทเอกสาร': item.docType || '',
+                    'เลขที่เอกสาร': item.docNumber || '',
+                    'ปีงบประมาณ': item.budgetYear || '',
+                    'วันที่': formatDateForExcel(item.date),
+                    'โครงการ': item.project || '',
+                    'รายการ': item.item || '',
+                    'ร้านค้าหรือผู้ขาย': item.vendor || '',
+                    'ประเภทผู้ขาย': item.vendorType || '',
+                    'เลขที่ใบสั่งซื้อ': item.purchaseOrder || '',
+                    'ใบสั่งลงวันที่': formatDateForExcel(item.purchaseDate),
+                    'จำนวนเงิน': item.amount || 0,
+                    'ภาษีมูลค่าเพิ่ม': item.vat || 0,
+                    'มูลค่าสินค้า': item.productValue || 0,
+                    'ภาษี ณ ที่จ่าย': item.withholdingTax || 0,
+                    'คงเหลือจ่ายจริง': item.netAmount || 0,
+                    'คงเหลือจ่ายจริงเป็นตัวหนังสือ': item.netAmountText || ''
+                }));
+
+                // Create workbook and worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(excelData);
+
+                // Set column widths
+                const colWidths = [
+                    { wch: 8 },   // ลำดับ
+                    { wch: 12 },  // ประเภทเอกสาร
+                    { wch: 15 },  // เลขที่เอกสาร
+                    { wch: 12 },  // ปีงบประมาณ
+                    { wch: 12 },  // วันที่
+                    { wch: 30 },  // โครงการ
+                    { wch: 30 },  // รายการ
+                    { wch: 25 },  // ร้านค้าหรือผู้ขาย
+                    { wch: 15 },  // ประเภทผู้ขาย
+                    { wch: 15 },  // เลขที่ใบสั่งซื้อ
+                    { wch: 12 },  // ใบสั่งลงวันที่
+                    { wch: 15 },  // จำนวนเงิน
+                    { wch: 15 },  // ภาษีมูลค่าเพิ่ม
+                    { wch: 15 },  // มูลค่าสินค้า
+                    { wch: 15 },  // ภาษี ณ ที่จ่าย
+                    { wch: 15 },  // คงเหลือจ่ายจริง
+                    { wch: 40 }   // คงเหลือจ่ายจริงเป็นตัวหนังสือ
+                ];
+                ws['!cols'] = colWidths;
+
+                // Add worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'รายการเบิกจ่าย');
+
+                // Generate Excel file and download
+                const today = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `${fileName}_${today}.xlsx`);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ',
+                    text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
+                    confirmButtonColor: '#e17055'
+                });
+
+            } catch (error) {
+                console.error('Error exporting expense data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถส่งออกไฟล์ Excel ได้',
+                    confirmButtonColor: '#e17055'
+                });
+            }
+        }
+
+        // Export refund data to Excel
+        function exportRefundData(budgetYear) {
+            try {
+                let filteredData = refundData;
+                let fileName = 'รายการคืนเงินอาหารกลางวัน';
+
+                if (budgetYear !== 'all') {
+                    filteredData = refundData.filter(item => {
+                        // Check both budgetYear field and year from date
+                        const itemBudgetYear = item.budgetYear || item.year;
+                        const itemDateYear = item.date ? new Date(item.date).getFullYear() : null;
+                        
+                        return itemBudgetYear === budgetYear || 
+                               itemBudgetYear === parseInt(budgetYear) ||
+                               itemDateYear === parseInt(budgetYear);
+                    });
+                    fileName += `_ปีงบประมาณ${budgetYear}`;
+                } else {
+                    fileName += '_ทุกปีงบประมาณ';
+                }
+
+                console.log('Budget Year:', budgetYear);
+                console.log('Total refund data:', refundData.length);
+                console.log('Filtered data:', filteredData.length);
+                console.log('Sample data:', refundData.slice(0, 3));
+
+                if (filteredData.length === 0) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่มีข้อมูล',
+                        text: 'ไม่มีข้อมูลสำหรับปีงบประมาณที่เลือก',
+                        confirmButtonColor: '#e17055'
+                    });
+                    return;
+                }
+
+                // Prepare data for Excel
+                const excelData = filteredData.map((item, index) => ({
+                    'ลำดับ': index + 1,
+                    'ประเภทเอกสาร': item.docType || '',
+                    'เลขที่เอกสาร': item.docNumber || '',
+                    'ปีงบประมาณ': item.budgetYear || '',
+                    'วันที่': formatDateForExcel(item.date),
+                    'รายการ': item.item || '',
+                    'ไตรมาส': item.quarter || '',
+                    'คืนใคร': item.refundTo || '',
+                    'จำนวนเงิน': item.amount || 0,
+                    'จำนวนเงินเป็นตัวหนังสือ': item.amountText || ''
+                }));
+
+                // Create workbook and worksheet
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.json_to_sheet(excelData);
+
+                // Set column widths
+                const colWidths = [
+                    { wch: 8 },   // ลำดับ
+                    { wch: 12 },  // ประเภทเอกสาร
+                    { wch: 15 },  // เลขที่เอกสาร
+                    { wch: 12 },  // ปีงบประมาณ
+                    { wch: 12 },  // วันที่
+                    { wch: 40 },  // รายการ
+                    { wch: 15 },  // ไตรมาส
+                    { wch: 25 },  // คืนใคร
+                    { wch: 15 },  // จำนวนเงิน
+                    { wch: 40 }   // จำนวนเงินเป็นตัวหนังสือ
+                ];
+                ws['!cols'] = colWidths;
+
+                // Add worksheet to workbook
+                XLSX.utils.book_append_sheet(wb, ws, 'รายการคืนเงิน');
+
+                // Generate Excel file and download
+                const today = new Date().toISOString().split('T')[0];
+                XLSX.writeFile(wb, `${fileName}_${today}.xlsx`);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'สำเร็จ',
+                    text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
+                    confirmButtonColor: '#e17055'
+                });
+
+            } catch (error) {
+                console.error('Error exporting refund data:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'เกิดข้อผิดพลาด',
+                    text: 'ไม่สามารถส่งออกไฟล์ Excel ได้',
+                    confirmButtonColor: '#e17055'
+                });
+            }
+        }
+
+        // Format date for Excel
+        function formatDateForExcel(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('th-TH');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    bootstrap.Modal.getInstance(modal)?.hide();
+                }
+            });
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984c0676e2782db8',t:'MTc1ODgxOTA3Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
