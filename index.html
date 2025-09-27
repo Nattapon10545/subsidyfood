@@ -717,10 +717,16 @@
         // Display expense data in table
         function displayExpenseData(filteredData = null) {
             const data = filteredData || expenseData;
+            // Sort data by document number in descending order (latest first)
+            const sortedData = [...data].sort((a, b) => {
+                const docA = (a.docNumber || '').toString();
+                const docB = (b.docNumber || '').toString();
+                return docB.localeCompare(docA, undefined, { numeric: true });
+            });
             const tbody = document.getElementById('expenseTableBody');
             const startIndex = (currentExpensePage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            const pageData = data.slice(startIndex, endIndex);
+            const pageData = sortedData.slice(startIndex, endIndex);
 
             tbody.innerHTML = '';
 
@@ -730,6 +736,13 @@
             }
 
             pageData.forEach((item, index) => {
+                // Find original index in expenseData for proper referencing
+                const originalIndex = expenseData.findIndex(originalItem => 
+                    originalItem.docNumber === item.docNumber && 
+                    originalItem.docType === item.docType &&
+                    originalItem.date === item.date
+                );
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.docType || ''}-${item.docNumber || ''}</td>
@@ -739,13 +752,13 @@
                     <td class="text-end">${formatCurrency(item.amount)}</td>
                     <td class="text-end">${formatCurrency(item.netAmount)}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewExpenseDetail(${startIndex + index})" title="ดูรายละเอียด">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewExpenseDetail(${originalIndex})" title="ดูรายละเอียด">
                             <img src="https://lh3.googleusercontent.com/d/1vThmT8ao6LRoTpfJ0cCyySaAPZPnv48x" alt="ดู" style="width: 16px; height: 16px;">
                         </button>
-                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editExpense(${startIndex + index})" title="แก้ไข">
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editExpense(${originalIndex})" title="แก้ไข">
                             <img src="https://lh3.googleusercontent.com/d/1J08fhv8_Lqe1O1YY4nQTSl-0WKNo3FnU" alt="แก้ไข" style="width: 16px; height: 16px;">
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteExpense(${startIndex + index})" title="ลบ">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteExpense(${originalIndex})" title="ลบ">
                             <img src="https://lh3.googleusercontent.com/d/1CE-tDsLaAhEd3TGz877i7N3AIiYRjDlq" alt="ลบ" style="width: 16px; height: 16px;">
                         </button>
                     </td>
@@ -753,16 +766,22 @@
                 tbody.appendChild(row);
             });
 
-            generateExpensePagination(data.length);
+            generateExpensePagination(sortedData.length);
         }
 
         // Display refund data in table
         function displayRefundData(filteredData = null) {
             const data = filteredData || refundData;
+            // Sort data by document number in descending order (latest first)
+            const sortedData = [...data].sort((a, b) => {
+                const docA = (a.docNumber || '').toString();
+                const docB = (b.docNumber || '').toString();
+                return docB.localeCompare(docA, undefined, { numeric: true });
+            });
             const tbody = document.getElementById('refundTableBody');
             const startIndex = (currentRefundPage - 1) * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            const pageData = data.slice(startIndex, endIndex);
+            const pageData = sortedData.slice(startIndex, endIndex);
 
             tbody.innerHTML = '';
 
@@ -772,6 +791,13 @@
             }
 
             pageData.forEach((item, index) => {
+                // Find original index in refundData for proper referencing
+                const originalIndex = refundData.findIndex(originalItem => 
+                    originalItem.docNumber === item.docNumber && 
+                    originalItem.docType === item.docType &&
+                    originalItem.date === item.date
+                );
+                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.docType || ''}-${item.docNumber || ''}</td>
@@ -781,13 +807,13 @@
                     <td>${item.refundTo || ''}</td>
                     <td class="text-end">${formatCurrency(item.amount)}</td>
                     <td>
-                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewRefundDetail(${startIndex + index})" title="ดูรายละเอียด">
+                        <button class="btn btn-sm btn-outline-primary me-1" onclick="viewRefundDetail(${originalIndex})" title="ดูรายละเอียด">
                             <img src="https://lh3.googleusercontent.com/d/1vThmT8ao6LRoTpfJ0cCyySaAPZPnv48x" alt="ดู" style="width: 16px; height: 16px;">
                         </button>
-                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editRefund(${startIndex + index})" title="แก้ไข">
+                        <button class="btn btn-sm btn-outline-warning me-1" onclick="editRefund(${originalIndex})" title="แก้ไข">
                             <img src="https://lh3.googleusercontent.com/d/1J08fhv8_Lqe1O1YY4nQTSl-0WKNo3FnU" alt="แก้ไข" style="width: 16px; height: 16px;">
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRefund(${startIndex + index})" title="ลบ">
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteRefund(${originalIndex})" title="ลบ">
                             <img src="https://lh3.googleusercontent.com/d/1CE-tDsLaAhEd3TGz877i7N3AIiYRjDlq" alt="ลบ" style="width: 16px; height: 16px;">
                         </button>
                     </td>
@@ -795,7 +821,7 @@
                 tbody.appendChild(row);
             });
 
-            generateRefundPagination(data.length);
+            generateRefundPagination(sortedData.length);
         }
 
         // Generate expense pagination
@@ -1848,5 +1874,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984c0676e2782db8',t:'MTc1ODgxOTA3Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98591d70c4de7dc0',t:'MTc1ODk1NjMzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
