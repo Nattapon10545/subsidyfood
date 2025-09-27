@@ -1658,6 +1658,17 @@
         // Export expense data to Excel
         function exportExpenseData(budgetYear) {
             try {
+                // Check if XLSX library is loaded
+                if (typeof XLSX === 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไลบรารี Excel ยังไม่โหลดเสร็จ กรุณาลองใหม่อีกครั้ง',
+                        confirmButtonColor: '#e17055'
+                    });
+                    return;
+                }
+
                 let filteredData = expenseData;
                 let fileName = 'รายการเบิกจ่ายอาหารกลางวัน';
 
@@ -1676,11 +1687,6 @@
                     fileName += '_ทุกปีงบประมาณ';
                 }
 
-                console.log('Budget Year:', budgetYear);
-                console.log('Total expense data:', expenseData.length);
-                console.log('Filtered data:', filteredData.length);
-                console.log('Sample data:', expenseData.slice(0, 3));
-
                 if (filteredData.length === 0) {
                     Swal.fire({
                         icon: 'warning',
@@ -1690,6 +1696,9 @@
                     });
                     return;
                 }
+
+                // Show loading
+                showLoading();
 
                 // Prepare data for Excel
                 const excelData = filteredData.map((item, index) => ({
@@ -1741,23 +1750,60 @@
                 // Add worksheet to workbook
                 XLSX.utils.book_append_sheet(wb, ws, 'รายการเบิกจ่าย');
 
-                // Generate Excel file and download
-                const today = new Date().toISOString().split('T')[0];
-                XLSX.writeFile(wb, `${fileName}_${today}.xlsx`);
+                // Generate Excel file and download with delay
+                setTimeout(() => {
+                    try {
+                        const today = new Date().toISOString().split('T')[0];
+                        const finalFileName = `${fileName}_${today}.xlsx`;
+                        
+                        // Force download using writeFile
+                        XLSX.writeFile(wb, finalFileName, {
+                            bookType: 'xlsx',
+                            type: 'binary'
+                        });
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'สำเร็จ',
-                    text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
-                    confirmButtonColor: '#e17055'
-                });
+                        hideLoading();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: `ดาวน์โหลดไฟล์ ${finalFileName} เรียบร้อยแล้ว`,
+                            confirmButtonColor: '#e17055'
+                        });
+
+                    } catch (downloadError) {
+                        hideLoading();
+                        console.error('Download error:', downloadError);
+                        
+                        // Fallback: Create download link manually
+                        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                        const blob = new Blob([wbout], { type: 'application/octet-stream' });
+                        const url = URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
+                            confirmButtonColor: '#e17055'
+                        });
+                    }
+                }, 500);
 
             } catch (error) {
+                hideLoading();
                 console.error('Error exporting expense data:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถส่งออกไฟล์ Excel ได้',
+                    text: 'ไม่สามารถส่งออกไฟล์ Excel ได้: ' + error.message,
                     confirmButtonColor: '#e17055'
                 });
             }
@@ -1766,6 +1812,17 @@
         // Export refund data to Excel
         function exportRefundData(budgetYear) {
             try {
+                // Check if XLSX library is loaded
+                if (typeof XLSX === 'undefined') {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'เกิดข้อผิดพลาด',
+                        text: 'ไลบรารี Excel ยังไม่โหลดเสร็จ กรุณาลองใหม่อีกครั้ง',
+                        confirmButtonColor: '#e17055'
+                    });
+                    return;
+                }
+
                 let filteredData = refundData;
                 let fileName = 'รายการคืนเงินอาหารกลางวัน';
 
@@ -1784,11 +1841,6 @@
                     fileName += '_ทุกปีงบประมาณ';
                 }
 
-                console.log('Budget Year:', budgetYear);
-                console.log('Total refund data:', refundData.length);
-                console.log('Filtered data:', filteredData.length);
-                console.log('Sample data:', refundData.slice(0, 3));
-
                 if (filteredData.length === 0) {
                     Swal.fire({
                         icon: 'warning',
@@ -1798,6 +1850,9 @@
                     });
                     return;
                 }
+
+                // Show loading
+                showLoading();
 
                 // Prepare data for Excel
                 const excelData = filteredData.map((item, index) => ({
@@ -1835,23 +1890,60 @@
                 // Add worksheet to workbook
                 XLSX.utils.book_append_sheet(wb, ws, 'รายการคืนเงิน');
 
-                // Generate Excel file and download
-                const today = new Date().toISOString().split('T')[0];
-                XLSX.writeFile(wb, `${fileName}_${today}.xlsx`);
+                // Generate Excel file and download with delay
+                setTimeout(() => {
+                    try {
+                        const today = new Date().toISOString().split('T')[0];
+                        const finalFileName = `${fileName}_${today}.xlsx`;
+                        
+                        // Force download using writeFile
+                        XLSX.writeFile(wb, finalFileName, {
+                            bookType: 'xlsx',
+                            type: 'binary'
+                        });
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'สำเร็จ',
-                    text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
-                    confirmButtonColor: '#e17055'
-                });
+                        hideLoading();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: `ดาวน์โหลดไฟล์ ${finalFileName} เรียบร้อยแล้ว`,
+                            confirmButtonColor: '#e17055'
+                        });
+
+                    } catch (downloadError) {
+                        hideLoading();
+                        console.error('Download error:', downloadError);
+                        
+                        // Fallback: Create download link manually
+                        const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                        const blob = new Blob([wbout], { type: 'application/octet-stream' });
+                        const url = URL.createObjectURL(blob);
+                        
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${fileName}_${new Date().toISOString().split('T')[0]}.xlsx`;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'สำเร็จ',
+                            text: 'ดาวน์โหลดไฟล์ Excel เรียบร้อยแล้ว',
+                            confirmButtonColor: '#e17055'
+                        });
+                    }
+                }, 500);
 
             } catch (error) {
+                hideLoading();
                 console.error('Error exporting refund data:', error);
                 Swal.fire({
                     icon: 'error',
                     title: 'เกิดข้อผิดพลาด',
-                    text: 'ไม่สามารถส่งออกไฟล์ Excel ได้',
+                    text: 'ไม่สามารถส่งออกไฟล์ Excel ได้: ' + error.message,
                     confirmButtonColor: '#e17055'
                 });
             }
@@ -1874,5 +1966,5 @@
             });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98591d70c4de7dc0',t:'MTc1ODk1NjMzMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98592404130c7dc0',t:'MTc1ODk1NjYwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
